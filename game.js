@@ -1,19 +1,37 @@
 
+var config = {
+    width: 900,
+    height: 600,
+    parent: "gamediv",
+    state: {
+        create: create,
+        update: update
+    }
+};
 
-function setupCanvas() {
+var game = new Phaser.Game(config);
+var gameState;
+var startText;
 
-    var canvas = document.getElementById("game");
-
-    var ctx = canvas.getContext("2d");
-
-    var canvasHeight = window.innerHeight - 3;
-
-    ctx.canvas.height = canvasHeight;
-    ctx.canvas.width = 1.5*canvasHeight;
-    canvas.style.border = "1px solid";
+function create() {
+    startText = game.add.text(0, 0, 'Press any key to begin');
+    startText.fill = "#FFFFFF";
+    startText.setTextBounds(0, 0, game.width, game.height);
+    startText.boundsAlignH = "center";
+    startText.boundsAlignV = "middle";
+    
+    gameState = "start";
+    
+    game.input.keyboard.addCallbacks(this, null, null, keyPress);
 }
 
-console.log("test")
+function update() {
+    
+}
 
-setupCanvas();
-window.addEventListener('resize', function(){setupCanvas();}, true);
+
+function keyPress(char) {
+    if (gameState == "start") {
+        startText.text = "boo";
+    }
+}
