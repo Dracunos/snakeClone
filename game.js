@@ -16,10 +16,14 @@ var downKey;
 var leftKey;
 var rightKey;
 var player;
-var playerBody;
 var food;
 var playerSize = 25;
+var playerSpeed = 0.25;
+var growthRate = 0.025;
+var turnDelay = 110;
 var tail = [];
+var lastTurn;
+var queuedTurn;
 
 function create() {
     var startText = game.add.text(0, 0, 'Press any key to begin');
@@ -30,17 +34,19 @@ function create() {
     
     gameState = "start";
     
-    game.input.keyboard.addCallbacks(this, null, null, startKeyPress);
+    game.input.keyboard.addCallbacks(this, keyPress);
 }
 
 function update() {
     if (gameState == "start") {
         return;
     }
-    checkKeys();
+    handleTail();
     movePlayer();
     checkCollision();
-    handleTail();
+    if (queuedTurn && game.time.now - lastTurn > turnDelay) {
+        keyPress(queuedTurn);
+    }
 }
 
 function createPlayer() {
@@ -56,25 +62,28 @@ function createPlayer() {
 }
 
 function movePlayer() {
+    var timeElapsed = game.time.elapsedMS
+    if (timeElapsed > 25) {
+        timeElapsed = 25;
+    }
+    var speed = playerSpeed * timeElapsed;
     if (player.direction == "center") {
         return;
     } else if (player.direction == "left") {
-        player.x -= 0.3 * game.time.elapsedMS;
+        player.x -= speed;
     } else if (player.direction == "right") {
-        player.x += 0.3 * game.time.elapsedMS;
+        player.x += speed;
     } else if (player.direction == "up") {
-        player.y -= 0.3 * game.time.elapsedMS;
+        player.y -= speed;
     } else if (player.direction == "down") {
-        player.y += 0.3 * game.time.elapsedMS;
+        player.y += speed;
     }
 }
 
 function handleTail() {
-    if (player.size <= player.currentSize) {
-        createTail();
+    if (player.size == 0) {
         return;
     }
-    player.currentSize += 0.1;
     // draw circles with rectangle connecting
     // rectangle grows until change direction, then new rectangle grows
     // once player stops growing, tail starts disappearing, in this case
@@ -82,36 +91,78 @@ function handleTail() {
     //  smaller
     if (player.changeDir) {
         player.changeDir = false;
-        tail.push(game.add.graphics(player.x, player.y));
-        var growth = tail[tail.length - 1];
-        growth.beginFill(0x999999);
-        growth.drawCircle(0, 0, playerSize);
-        growth.endFill();
-        game.physics.enable(growth);
-        growth.body.setCircle(playerSize/2, -playerSize/2, -playerSize/2);
-        tail.push(game.add.graphics(player.x, player.y));
+        var endCircle = game.add.graphics(player.x, player.y);
+        endCircle.shapeType = "circle";
+        endCircle.beginFill(0x999999);
+        endCircle.drawCircle(0, 0, playerSize);
+        endCircle.endFill();
+        tail.push(endCircle);
+        game.physics.enable(endCircle);
+        endCircle.body.setCircle(playerSize/2, -playerSize/2, -playerSize/2);
+        
+        var growth = game.add.graphics(player.x, player.y);
+        growth.shapeType = "square";
+        tail.push(growth);
         game.physics.enable(growth);
         return;
+    }
+    if (player.size < player.currentSize) {
+        moveTailEnd();
+    } else {
+        player.currentSize += growthRate;
     }
     createTail();
 }
 
-function createTail() {
-    for (var i = tail.length - 1; i >= 0; i--) {
-        if (i % 2 == 1) {
-            continue
+function moveTailEnd() {
+    if (tail.length == 2) {
+        moveCircleTo(tail[0], player);
+    } else {
+        moveCircleTo(tail[0], tail[2]);
+        if (Math.abs(tail[0].x - tail[2].x) < 1 && Math.abs(tail[0].y - tail[2].y) < 1) {
+            tail[0].destroy();
+            tail[1].destroy();
+            tail.splice(0, 2);
         }
-        if (i == 0) {
-            adjustRect(tail[i+1], player, tail[i]);
+    }
+}
+
+function moveCircleTo(circ1, circ2) {
+    var timeElapsed = game.time.elapsedMS
+    if (timeElapsed > 25) {
+        timeElapsed = 25;
+    }
+    if (circ1.x == circ2.x) {
+        if (circ1.y > circ2.y) {
+            circ1.y -= playerSpeed * timeElapsed;
+        } else {
+            circ1.y += playerSpeed * timeElapsed;
+        }
+        
+    } else if (circ1.y == circ2.y) {
+        if (circ1.x > circ2.x) {
+            circ1.x -= playerSpeed * timeElapsed;
+        } else {
+            circ1.x += playerSpeed * timeElapsed;
+        }
+    }
+}
+
+function createTail() {
+    for (var i = 0; i < tail.length; i++) {
+        if (i % 2 == 0) {
+            continue;
+        }
+        if (i == tail.length - 1) {
+            adjustRect(tail[i-1], player, tail[i]);
         } else {
             adjustRect(tail[i+1], tail[i-1], tail[i]);
         }
-        
     }
 }
 
 function adjustRect(circ1, circ2, rect) {
-    // May need to manually change collision
+    rect.clear();
     if (circ1.x == circ2.x) {
         if (circ2.y < circ1.y) {
             var x = circ2;
@@ -121,7 +172,7 @@ function adjustRect(circ1, circ2, rect) {
         rect.x = circ1.x - playerSize;
         rect.y = circ1.y;
         rect.beginFill(0x999999);
-        rect.drawRect(0, 0, playerSize*2, circ2.y - circ1.y);
+        rect.drawRect(playerSize/2, 0, playerSize, circ2.y - circ1.y);
         rect.endFill();
     } else {
         if (circ2.x < circ1.x) {
@@ -132,20 +183,71 @@ function adjustRect(circ1, circ2, rect) {
         rect.x = circ1.x;
         rect.y = circ1.y - playerSize;
         rect.beginFill(0x999999);
-        rect.drawRect(0, 0, circ2.x - circ1.x, playerSize*2);
+        rect.drawRect(0, playerSize/2, circ2.x - circ1.x, playerSize);
         rect.endFill();
     }
 }
 
 function checkCollision() {
-    if (game.physics.arcade.overlap(player, food)) {
-        food.destroy();
-        player.size += 1;
-        player.changeDir = true; // to start growth process
+    var overlap = checkOverlap(new Phaser.Circle(player.x, player.y, playerSize), food);
+    if (overlap) {
+        eatFood();
     }
     if (player.body.checkWorldBounds()) {
         killPlayer();
     }
+    if (tail.length != 0) {
+        for (var i = 0; i < tail.length; i++) { // Don't clip the first 6 tail pieces
+            if (i >= tail.length - 6) {
+                continue;
+            }
+            if (tail[i].shapeType == "square") {
+                if (checkOverlap(new Phaser.Circle(player.x, player.y, playerSize), tail[i], -playerSize/2)) {
+                    killPlayer();
+                }
+            } else {
+                if (checkCircleOverlap(new Phaser.Circle(player.x, player.y, playerSize), new Phaser.Circle(tail[i].x, tail[i].y, playerSize))) {
+                    killPlayer();
+                }
+            }
+        }
+    }
+}
+
+function checkCircleOverlap(c1, c2) {
+    var r1 = c1.radius;
+    var r2 = c2.radius;
+    if (Phaser.Math.distance(c1.x, c1.y, c2.x, c2.y) < r1 + r2) {
+        return true;
+    }
+    return false;
+}
+
+function checkOverlap(circle, rect, offset) {
+    if (!offset) {
+        offset = 0;
+    }
+    var rectW = rect.width/2;
+    var rectH = rect.height/2;
+    var distX = Math.abs(circle.x - rect.x + offset - rectW);
+    var distY = Math.abs(circle.y - rect.y + offset - rectH);
+
+    if (distX > (rectW + circle.radius)) { return false; }
+    if (distY > (rectH + circle.radius)) { return false; }
+
+    if (distX <= (rectW)) { return true; } 
+    if (distY <= (rectH)) { return true; }
+
+    var dx = distX - rectW;
+    var dy = distY - rectH;
+    return (dx * dx + dy * dy <= (circle.radius * circle.radius));
+}
+
+function eatFood() {    
+    food.destroy();
+    spawnFood()
+    player.size += 1;
+    player.changeDir = true; // to start growth process
 }
 
 function killPlayer() {
@@ -153,47 +255,56 @@ function killPlayer() {
 }
 
 function spawnFood() {
-    var posX = 100;
-    var posY = 100;
+    var foodSize = 20;
+    var posX = getRndInteger(0, game.width - foodSize);
+    var posY = getRndInteger(0, game.height - foodSize);
     food = game.add.graphics(posX, posY);
     food.beginFill(0x999999);
-    food.drawRect(0, 0, 20, 20);
+    food.drawRect(0, 0, foodSize, foodSize);
     food.endFill();
     game.physics.enable(food);
 }
 
-function checkKeys() {
-    if (upKey.isDown) {
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+}
+
+function keyPress(char) {
+    if (gameState == "start") {
+        setupGame();
+        return;
+    }
+    if (game.time.now - lastTurn < turnDelay){
+        queuedTurn = char;
+        return;
+    }
+    if (char.key == "ArrowUp" && player.direction != 'up' && player.direction != 'down') {
         player.direction = 'up';
-        player.changeDir = true;
-    } else if (downKey.isDown) {
+        keyPressed()
+    } else if (char.key == "ArrowDown" && player.direction != 'down' && player.direction != 'up') {
         player.direction = 'down';
-        player.changeDir = true;
-    } else if (leftKey.isDown) {
+        keyPressed()
+    } else if (char.key == "ArrowLeft" && player.direction != 'left' && player.direction != 'right') {
         player.direction = 'left';
-        player.changeDir = true;
-    } else if (rightKey.isDown) {
+        keyPressed()
+    } else if (char.key == "ArrowRight" && player.direction != 'right' && player.direction != 'left') {
         player.direction = 'right';
-        player.changeDir = true;
+        keyPressed()
     }
 }
 
-function startKeyPress(char) {
-    if (gameState == "start") {
-        setupGame();
-    }
+function keyPressed() {
+    player.changeDir = true;
+    lastTurn = game.time.now;
+    queuedTurn = null;
 }
 
 function setupGame() {
     gameState = "game";
     game.world.removeAll();
     
-    game.input.keyboard.removeCallbacks();
-    upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
-    downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
-    leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
-    rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
     game.physics.startSystem(Phaser.Physics.ARCADE);
     createPlayer();
     spawnFood();
+    lastTurn = game.time.now;
 }
