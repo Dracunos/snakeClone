@@ -1,3 +1,7 @@
+const playerSize = 25;
+const playerSpeed = 0.25;
+const growthRate = 0.025;
+const turnDelay = 110;
 
 var config = {
     width: 900,
@@ -17,10 +21,6 @@ var leftKey;
 var rightKey;
 var player;
 var food;
-var playerSize = 25;
-var playerSpeed = 0.25;
-var growthRate = 0.025;
-var turnDelay = 110;
 var tail = [];
 var lastTurn;
 var queuedTurn;
@@ -81,7 +81,7 @@ function movePlayer() {
 }
 
 function handleTail() {
-    if (player.size == 0) {
+    if (player.size === 0) {
         return;
     }
     // draw circles with rectangle connecting
@@ -150,7 +150,7 @@ function moveCircleTo(circ1, circ2) {
 
 function createTail() {
     for (var i = 0; i < tail.length; i++) {
-        if (i % 2 == 0) {
+        if (i % 2 === 0) {
             continue;
         }
         if (i == tail.length - 1) {
@@ -165,7 +165,7 @@ function adjustRect(circ1, circ2, rect) {
     rect.clear();
     if (circ1.x == circ2.x) {
         if (circ2.y < circ1.y) {
-            var x = circ2;
+            let x = circ2;
             circ2 = circ1;
             circ1 = x;
         }
@@ -176,7 +176,7 @@ function adjustRect(circ1, circ2, rect) {
         rect.endFill();
     } else {
         if (circ2.x < circ1.x) {
-            var x = circ2;
+            let x = circ2;
             circ2 = circ1;
             circ1 = x;
         }
@@ -196,7 +196,7 @@ function checkCollision() {
     if (player.body.checkWorldBounds()) {
         killPlayer();
     }
-    if (tail.length != 0) {
+    if (tail.length !== 0) {
         for (var i = 0; i < tail.length; i++) { // Don't clip the first 6 tail pieces
             if (i >= tail.length - 6) {
                 continue;
