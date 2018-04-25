@@ -134,7 +134,7 @@ function movePlayer() {
 }
 
 function drawEyes() {
-    var eyeDistance = 15;
+    var eyeDistance = 5;
     if (player.direction == "left") {
         let x = -eyeDistance;
         let y = eyeDistance;
@@ -151,13 +151,13 @@ function drawEyes() {
         let x = eyeDistance;
         let y = eyeDistance;
         drawEye(x, y);
-        y = -eyeDistance;
+        x = -eyeDistance;
         drawEye(x, y);
     } else { // Player is either still or looking up
         let x = eyeDistance;
         let y = -eyeDistance;
         drawEye(x, y);
-        y = -eyeDistance;
+        x = -eyeDistance;
         drawEye(x, y);
     }
 }
