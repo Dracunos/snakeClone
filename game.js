@@ -68,7 +68,7 @@ function updateGame() {
     }
     handleTail();
     movePlayer();
-    drawEyes();
+    drawPlayer();
     checkCollision();
     if (queuedTurn && game.time.now - lastTurn > turnDelay) {
         keyPress(queuedTurn);
@@ -101,14 +101,19 @@ function changeState(state) {
 
 function createPlayer() {
     player = game.add.graphics(game.width / 2, game.height / 2);
-    player.beginFill(0xff3300);
-    player.drawCircle(0, 0, playerSize);
-    player.endFill();
     player.direction = "center";
     player.size = 0;
     player.currentSize = 0;
     game.physics.enable(player);
     player.body.setCircle(playerSize / 2, -playerSize / 2, -playerSize / 2);
+}
+
+function drawPlayer() {
+    player.clear();
+    player.beginFill(0xff3300);
+    player.drawCircle(0, 0, playerSize);
+    player.endFill();
+    drawEyes();
 }
 
 function movePlayer() {
@@ -129,7 +134,7 @@ function movePlayer() {
 }
 
 function drawEyes() {
-    var eyeDistance = 20;
+    var eyeDistance = 15;
     if (player.direction == "left") {
         let x = -eyeDistance;
         let y = eyeDistance;
@@ -348,7 +353,7 @@ function spawnFood() {
     var posX = getRndInteger(0, game.width - foodSize);
     var posY = getRndInteger(0, game.height - foodSize);
     food = game.add.graphics(posX, posY);
-    food.beginFill(0xff0000);
+    food.beginFill(0xff66ff);
     food.drawRect(0, 0, foodSize, foodSize);
     food.endFill();
     game.physics.enable(food);
