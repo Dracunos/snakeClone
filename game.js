@@ -60,7 +60,8 @@ function drawCenterText(text) {
 
 function drawScore() {
     score.destroy();
-    score.text = score.score;
+    let x = score.score;
+    score = game.add.text(0, 0, x);
     score.fill = "#FFFFFF";
     score.setTextBounds(0, 0, game.width, game.height);
     score.boundsAlignH = "center";
