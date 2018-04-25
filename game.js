@@ -5,7 +5,7 @@ const turnDelay = 110;
 
 var config = {
     width: 900,
-    height: 600,
+    height: 500,
     parent: "gamediv",
     state: {
         create: create,
