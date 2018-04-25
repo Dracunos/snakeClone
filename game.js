@@ -15,10 +15,7 @@ var config = {
 
 var game = new Phaser.Game(config);
 var gameState;
-var upKey;
-var downKey;
-var leftKey;
-var rightKey;
+var stateLoaded;
 var player;
 var food;
 var tail = [];
@@ -26,11 +23,7 @@ var lastTurn;
 var queuedTurn;
 
 function create() {
-    var startText = game.add.text(0, 0, 'Press any key to begin');
-    startText.fill = "#FFFFFF";
-    startText.setTextBounds(0, 0, game.width, game.height);
-    startText.boundsAlignH = "center";
-    startText.boundsAlignV = "middle";
+    stateLoaded = false;
 
     gameState = "start";
 
@@ -39,7 +32,39 @@ function create() {
 
 function update() {
     if (gameState == "start") {
-        return;
+        updateStartScreen();
+    } else if (gameState == "options") {
+        updateOptionsScreen();
+    } else if (gameState == "game") {
+        updateGame();
+    } else if (gameState == "dead") {
+        updateDeathScreen();
+    }
+}
+
+function updateStartScreen() {
+    if (!stateLoaded) {
+        drawCenterText('Press any key to begin\n\nUse arrow keys to move');
+        stateLoaded = true;
+    }
+}
+
+function drawCenterText(text) {
+    var startText = game.add.text(0, 0, text);
+    startText.fill = "#FFFFFF";
+    startText.setTextBounds(0, 0, game.width, game.height);
+    startText.boundsAlignH = "center";
+    startText.boundsAlignV = "middle";
+}
+
+function updateOptionsScreen() {
+    // options here
+}
+
+function updateGame() {
+    if (!stateLoaded) {
+        setupGame();
+        stateLoaded = true;
     }
     handleTail();
     movePlayer();
@@ -47,6 +72,30 @@ function update() {
     if (queuedTurn && game.time.now - lastTurn > turnDelay) {
         keyPress(queuedTurn);
     }
+}
+
+function setupGame() {    
+        player = null;
+        food = null;
+        tail.length = 0;
+        queuedTurn = null;
+        game.world.removeAll();
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+        createPlayer();
+        spawnFood();
+        lastTurn = game.time.now;
+}
+
+function updateDeathScreen() {
+    if (!stateLoaded) {
+        drawCenterText('   GAME OVER\n\n\n\n\n\n\nPress r to restart');
+        stateLoaded = true;
+    }
+}
+
+function changeState(state) {
+    gameState = state;
+    stateLoaded = false;
 }
 
 function createPlayer() {
@@ -255,7 +304,7 @@ function eatFood() {
 }
 
 function killPlayer() {
-    player.direction = "center";
+    changeState("dead");
 }
 
 function spawnFood() {
@@ -275,8 +324,14 @@ function getRndInteger(min, max) {
 
 function keyPress(char) {
     if (gameState == "start") {
-        setupGame();
+        changeState("game");
         return;
+    }
+    if (gameState == "dead") {
+        if (char.key == "r") {
+            changeState("game");
+            return;
+        }
     }
     if (game.time.now - lastTurn < turnDelay) {
         queuedTurn = char;
@@ -301,14 +356,4 @@ function keyPressed() {
     player.changeDir = true;
     lastTurn = game.time.now;
     queuedTurn = null;
-}
-
-function setupGame() {
-    gameState = "game";
-    game.world.removeAll();
-
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-    createPlayer();
-    spawnFood();
-    lastTurn = game.time.now;
 }
