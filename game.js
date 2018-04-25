@@ -31,9 +31,9 @@ function create() {
     startText.setTextBounds(0, 0, game.width, game.height);
     startText.boundsAlignH = "center";
     startText.boundsAlignV = "middle";
-    
+
     gameState = "start";
-    
+
     game.input.keyboard.addCallbacks(this, keyPress);
 }
 
@@ -50,7 +50,7 @@ function update() {
 }
 
 function createPlayer() {
-    player = game.add.graphics(game.width/2, game.height/2);
+    player = game.add.graphics(game.width / 2, game.height / 2);
     player.beginFill(0x999999);
     player.drawCircle(0, 0, playerSize);
     player.endFill();
@@ -58,11 +58,11 @@ function createPlayer() {
     player.size = 0;
     player.currentSize = 0;
     game.physics.enable(player);
-    player.body.setCircle(playerSize/2, -playerSize/2, -playerSize/2);
+    player.body.setCircle(playerSize / 2, -playerSize / 2, -playerSize / 2);
 }
 
 function movePlayer() {
-    var timeElapsed = game.time.elapsedMS
+    var timeElapsed = game.time.elapsedMS;
     if (timeElapsed > 25) {
         timeElapsed = 25;
     }
@@ -98,8 +98,8 @@ function handleTail() {
         endCircle.endFill();
         tail.push(endCircle);
         game.physics.enable(endCircle);
-        endCircle.body.setCircle(playerSize/2, -playerSize/2, -playerSize/2);
-        
+        endCircle.body.setCircle(playerSize / 2, -playerSize / 2, -playerSize / 2);
+
         var growth = game.add.graphics(player.x, player.y);
         growth.shapeType = "square";
         tail.push(growth);
@@ -128,7 +128,7 @@ function moveTailEnd() {
 }
 
 function moveCircleTo(circ1, circ2) {
-    var timeElapsed = game.time.elapsedMS
+    var timeElapsed = game.time.elapsedMS;
     if (timeElapsed > 25) {
         timeElapsed = 25;
     }
@@ -138,7 +138,7 @@ function moveCircleTo(circ1, circ2) {
         } else {
             circ1.y += playerSpeed * timeElapsed;
         }
-        
+
     } else if (circ1.y == circ2.y) {
         if (circ1.x > circ2.x) {
             circ1.x -= playerSpeed * timeElapsed;
@@ -154,9 +154,9 @@ function createTail() {
             continue;
         }
         if (i == tail.length - 1) {
-            adjustRect(tail[i-1], player, tail[i]);
+            adjustRect(tail[i - 1], player, tail[i]);
         } else {
-            adjustRect(tail[i+1], tail[i-1], tail[i]);
+            adjustRect(tail[i + 1], tail[i - 1], tail[i]);
         }
     }
 }
@@ -172,7 +172,7 @@ function adjustRect(circ1, circ2, rect) {
         rect.x = circ1.x - playerSize;
         rect.y = circ1.y;
         rect.beginFill(0x999999);
-        rect.drawRect(playerSize/2, 0, playerSize, circ2.y - circ1.y);
+        rect.drawRect(playerSize / 2, 0, playerSize, circ2.y - circ1.y);
         rect.endFill();
     } else {
         if (circ2.x < circ1.x) {
@@ -183,7 +183,7 @@ function adjustRect(circ1, circ2, rect) {
         rect.x = circ1.x;
         rect.y = circ1.y - playerSize;
         rect.beginFill(0x999999);
-        rect.drawRect(0, playerSize/2, circ2.x - circ1.x, playerSize);
+        rect.drawRect(0, playerSize / 2, circ2.x - circ1.x, playerSize);
         rect.endFill();
     }
 }
@@ -202,7 +202,7 @@ function checkCollision() {
                 continue;
             }
             if (tail[i].shapeType == "square") {
-                if (checkOverlap(new Phaser.Circle(player.x, player.y, playerSize), tail[i], -playerSize/2)) {
+                if (checkOverlap(new Phaser.Circle(player.x, player.y, playerSize), tail[i], -playerSize / 2)) {
                     killPlayer();
                 }
             } else {
@@ -227,23 +227,31 @@ function checkOverlap(circle, rect, offset) {
     if (!offset) {
         offset = 0;
     }
-    var rectW = rect.width/2;
-    var rectH = rect.height/2;
+    var rectW = rect.width / 2;
+    var rectH = rect.height / 2;
     var distX = Math.abs(circle.x - rect.x + offset - rectW);
     var distY = Math.abs(circle.y - rect.y + offset - rectH);
 
-    if (distX > (rectW + circle.radius)) { return false; }
-    if (distY > (rectH + circle.radius)) { return false; }
+    if (distX > (rectW + circle.radius)) {
+        return false;
+    }
+    if (distY > (rectH + circle.radius)) {
+        return false;
+    }
 
-    if (distX <= (rectW)) { return true; } 
-    if (distY <= (rectH)) { return true; }
+    if (distX <= (rectW)) {
+        return true;
+    }
+    if (distY <= (rectH)) {
+        return true;
+    }
 
     var dx = distX - rectW;
     var dy = distY - rectH;
     return (dx * dx + dy * dy <= (circle.radius * circle.radius));
 }
 
-function eatFood() {    
+function eatFood() {
     food.destroy();
     spawnFood()
     player.size += 1;
@@ -266,7 +274,7 @@ function spawnFood() {
 }
 
 function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min) ) + min;
+    return Math.floor(Math.random() * (max - min)) + min;
 }
 
 function keyPress(char) {
@@ -274,7 +282,7 @@ function keyPress(char) {
         setupGame();
         return;
     }
-    if (game.time.now - lastTurn < turnDelay){
+    if (game.time.now - lastTurn < turnDelay) {
         queuedTurn = char;
         return;
     }
@@ -302,7 +310,7 @@ function keyPressed() {
 function setupGame() {
     gameState = "game";
     game.world.removeAll();
-    
+
     game.physics.startSystem(Phaser.Physics.ARCADE);
     createPlayer();
     spawnFood();
