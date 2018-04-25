@@ -163,8 +163,8 @@ function drawEyes() {
 }
 
 function drawEye(x, y) {
-    player.beginFill(0xffffff);
-    player.drawCircle(x, y, 5);
+    player.beginFill(0x000000);
+    player.drawCircle(x, y, 6);
     player.endFill();
 }
 
@@ -181,7 +181,7 @@ function handleTail() {
         player.changeDir = false;
         var endCircle = game.add.graphics(player.x, player.y);
         endCircle.shapeType = "circle";
-        endCircle.beginFill(0x999999);
+        endCircle.beginFill(0xff3300);
         endCircle.drawCircle(0, 0, playerSize);
         endCircle.endFill();
         tail.push(endCircle);
@@ -257,7 +257,7 @@ function adjustRect(circ1, circ2, rect) {
         }
         rect.x = circ1.x - playerSize;
         rect.y = circ1.y;
-        rect.beginFill(0x999999);
+        rect.beginFill(0xff3300);
         rect.drawRect(playerSize / 2, 0, playerSize, circ2.y - circ1.y);
         rect.endFill();
     } else {
@@ -268,7 +268,7 @@ function adjustRect(circ1, circ2, rect) {
         }
         rect.x = circ1.x;
         rect.y = circ1.y - playerSize;
-        rect.beginFill(0x999999);
+        rect.beginFill(0xff3300);
         rect.drawRect(0, playerSize / 2, circ2.x - circ1.x, playerSize);
         rect.endFill();
     }
