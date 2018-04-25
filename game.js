@@ -86,15 +86,15 @@ function setupGame() {
         food = null;
         tail.length = 0;
         queuedTurn = null;
+        game.world.removeAll();
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+        createPlayer();
+        spawnFood();
         score = game.add.text(0, 0, "0");
         score.fill = "#FFFFFF";
         score.setTextBounds(0, 0, game.width, game.height);
         score.boundsAlignH = "center";
         score.score = 0;
-        game.world.removeAll();
-        game.physics.startSystem(Phaser.Physics.ARCADE);
-        createPlayer();
-        spawnFood();
         lastTurn = game.time.now;
 }
 
