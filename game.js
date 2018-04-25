@@ -34,7 +34,7 @@ function create() {
 
     gameState = "start";
 
-    game.input.keyboard.addCallbacks(this, keyPress);
+    game.input.keyboard.addCallbacks(game, keyPress);
 }
 
 function update() {
@@ -67,9 +67,7 @@ function movePlayer() {
         timeElapsed = 25;
     }
     var speed = playerSpeed * timeElapsed;
-    if (player.direction == "center") {
-        return;
-    } else if (player.direction == "left") {
+    if (player.direction == "left") {
         player.x -= speed;
     } else if (player.direction == "right") {
         player.x += speed;
@@ -149,11 +147,9 @@ function moveCircleTo(circ1, circ2) {
 }
 
 function createTail() {
-    for (var i = 0; i < tail.length; i++) {
+    for (i = 0; i < tail.length; i += 1) {
         if (i % 2 === 0) {
-            continue;
-        }
-        if (i == tail.length - 1) {
+        } else if (i == tail.length - 1) {
             adjustRect(tail[i - 1], player, tail[i]);
         } else {
             adjustRect(tail[i + 1], tail[i - 1], tail[i]);
