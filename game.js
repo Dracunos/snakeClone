@@ -90,7 +90,7 @@ function setupGame() {
         food = null;
         tail.length = 0;
         queuedTurn = null;
-        score = game.add.text("0");
+        score = game.add.text(0, 0, "0");
         score.score = 0;
         game.world.removeAll();
         game.physics.startSystem(Phaser.Physics.ARCADE);
