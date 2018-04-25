@@ -131,28 +131,28 @@ function movePlayer() {
 function drawEyes() {
     var eyeDistance = 20;
     if (player.direction == "left") {
-        let x = player.x - eyeDistance;
-        let y = player.y + eyeDistance;
+        let x = -eyeDistance;
+        let y = eyeDistance;
         drawEye(x, y);
-        y = player.y - eyeDistance;
+        y = -eyeDistance;
         drawEye(x, y);
     } else if (player.direction == "right") {
-        let x = player.x + eyeDistance;
-        let y = player.y + eyeDistance;
+        let x = eyeDistance;
+        let y = eyeDistance;
         drawEye(x, y);
-        y = player.y - eyeDistance;
+        y = -eyeDistance;
         drawEye(x, y);
     } else if (player.direction == "down") {
-        let x = player.x + eyeDistance;
-        let y = player.y + eyeDistance;
+        let x = eyeDistance;
+        let y = eyeDistance;
         drawEye(x, y);
-        y = player.x - eyeDistance;
+        y = -eyeDistance;
         drawEye(x, y);
     } else { // Player is either still or looking up
-        let x = player.x + eyeDistance;
-        let y = player.y - eyeDistance;
+        let x = eyeDistance;
+        let y = -eyeDistance;
         drawEye(x, y);
-        y = player.x - eyeDistance;
+        y = -eyeDistance;
         drawEye(x, y);
     }
 }
