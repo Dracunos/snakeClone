@@ -59,12 +59,7 @@ function drawCenterText(text) {
 }
 
 function drawScore() {
-    score.destroy();
-    let x = score.score;
-    score = game.add.text(0, 0, x);
-    score.fill = "#FFFFFF";
-    score.setTextBounds(0, 0, game.width, game.height);
-    score.boundsAlignH = "center";
+    score.text = score.score.toString();
 }
 
 function updateOptionsScreen() {
@@ -92,6 +87,9 @@ function setupGame() {
         tail.length = 0;
         queuedTurn = null;
         score = game.add.text(0, 0, "0");
+        score.fill = "#FFFFFF";
+        score.setTextBounds(0, 0, game.width, game.height);
+        score.boundsAlignH = "center";
         score.score = 0;
         game.world.removeAll();
         game.physics.startSystem(Phaser.Physics.ARCADE);
