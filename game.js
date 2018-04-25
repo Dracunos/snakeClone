@@ -68,6 +68,7 @@ function updateGame() {
     }
     handleTail();
     movePlayer();
+    drawEyes();
     checkCollision();
     if (queuedTurn && game.time.now - lastTurn > turnDelay) {
         keyPress(queuedTurn);
@@ -100,7 +101,7 @@ function changeState(state) {
 
 function createPlayer() {
     player = game.add.graphics(game.width / 2, game.height / 2);
-    player.beginFill(0x999999);
+    player.beginFill(0xff3300);
     player.drawCircle(0, 0, playerSize);
     player.endFill();
     player.direction = "center";
@@ -125,6 +126,41 @@ function movePlayer() {
     } else if (player.direction == "down") {
         player.y += speed;
     }
+}
+
+function drawEyes() {
+    var eyeDistance = 20;
+    if (player.direction == "left") {
+        let x = player.x - eyeDistance;
+        let y = player.y + eyeDistance;
+        drawEye(x, y);
+        y = player.y - eyeDistance;
+        drawEye(x, y);
+    } else if (player.direction == "right") {
+        let x = player.x + eyeDistance;
+        let y = player.y + eyeDistance;
+        drawEye(x, y);
+        y = player.y - eyeDistance;
+        drawEye(x, y);
+    } else if (player.direction == "down") {
+        let x = player.x + eyeDistance;
+        let y = player.y + eyeDistance;
+        drawEye(x, y);
+        y = player.x - eyeDistance;
+        drawEye(x, y);
+    } else { // Player is either still or looking up
+        let x = player.x + eyeDistance;
+        let y = player.y - eyeDistance;
+        drawEye(x, y);
+        y = player.x - eyeDistance;
+        drawEye(x, y);
+    }
+}
+
+function drawEye(x, y) {
+    player.beginFill(0xffffff);
+    player.drawCircle(x, y, 5);
+    player.endFill();
 }
 
 function handleTail() {
@@ -312,7 +348,7 @@ function spawnFood() {
     var posX = getRndInteger(0, game.width - foodSize);
     var posY = getRndInteger(0, game.height - foodSize);
     food = game.add.graphics(posX, posY);
-    food.beginFill(0x999999);
+    food.beginFill(0xff0000);
     food.drawRect(0, 0, foodSize, foodSize);
     food.endFill();
     game.physics.enable(food);
