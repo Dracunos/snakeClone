@@ -21,6 +21,7 @@ var food;
 var tail = [];
 var lastTurn;
 var queuedTurn;
+var score;
 
 function create() {
     stateLoaded = false;
@@ -57,6 +58,14 @@ function drawCenterText(text) {
     startText.boundsAlignV = "middle";
 }
 
+function drawScore() {
+    score.destroy();
+    score.text = score.score;
+    score.fill = "#FFFFFF";
+    score.setTextBounds(0, 0, game.width, game.height);
+    score.boundsAlignH = "center";
+}
+
 function updateOptionsScreen() {
     // options here
 }
@@ -70,6 +79,7 @@ function updateGame() {
     movePlayer();
     drawPlayer();
     checkCollision();
+    drawScore();
     if (queuedTurn && game.time.now - lastTurn > turnDelay) {
         keyPress(queuedTurn);
     }
@@ -80,6 +90,8 @@ function setupGame() {
         food = null;
         tail.length = 0;
         queuedTurn = null;
+        score = game.add.text("0");
+        score.score = 0;
         game.world.removeAll();
         game.physics.startSystem(Phaser.Physics.ARCADE);
         createPlayer();
@@ -339,6 +351,7 @@ function checkOverlap(circle, rect, offset) {
 
 function eatFood() {
     food.destroy();
+    score.score += 1;
     spawnFood()
     player.size += 1;
     player.changeDir = true; // to start growth process
