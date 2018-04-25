@@ -60,6 +60,7 @@ function drawCenterText(text) {
 
 function drawScore() {
     score.text = score.score.toString();
+    score.bringToTop();
 }
 
 function updateOptionsScreen() {
